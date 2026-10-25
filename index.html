@@ -68,6 +68,10 @@ th.today{color:var(--accent)}
 .prio input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .stat .big{font:800 28px var(--f-display)}
+.guide summary{cursor:pointer;list-style-position:outside}
+.guide summary::marker{color:var(--accent)}
+.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;max-width:68ch}
+.steps li::marker{font-family:var(--f-mono);color:var(--accent)}
 .hidden-box{display:flex;flex-direction:column;gap:8px}
 @media (prefers-reduced-motion:no-preference){.fill{transition:width .3s}}
 </style>
@@ -78,6 +82,20 @@ th.today{color:var(--accent)}
     <h1>Leader Week Log</h1>
     <p class="lede">Write one SMART goal, track the daily habits that move it, choose three priorities each week and review on Sunday. Everything stays private in your own browser.</p>
   </header>
+
+  <details class="panel guide" id="guide">
+    <summary><h2 style="display:inline">How to use this tracker</h2></summary>
+    <ol class="steps">
+      <li><strong>Start fresh.</strong> The tracker opens with example data. Press <em>Start fresh</em> in the green bar to clear it, or edit the examples.</li>
+      <li><strong>Write your SMART goal.</strong> Put your goal in one sentence, then fill in Specific, Measurable, Attainable and Relevant. Set a start date and a deadline to see how many days are left.</li>
+      <li><strong>Add 2–4 habits.</strong> Choose small daily actions that move your goal forward. Set how many days a week you aim to do each one.</li>
+      <li><strong>Tick off each day.</strong> Tap a day's box when you've done the habit. The <em>Week</em> column shows your progress against your target, and <em>Streak</em> counts days in a row.</li>
+      <li><strong>Pick your top 3 priorities</strong> at the start of each week, and tick them when they're done.</li>
+      <li><strong>Review on Sunday.</strong> Write what went well, what you postponed and one change for next week. Use the arrows at the top to look back at earlier weeks.</li>
+      <li><strong>Back up your data.</strong> Your entries are saved only in this browser on this device. Press <em>Copy backup</em> now and then and keep the text somewhere safe. Paste it into <em>Restore</em> to continue on another device.</li>
+    </ol>
+    <p class="lede" style="margin:0">Tip: add this page to your phone's home screen from your browser menu so you can check in every day.</p>
+  </details>
 
   <div class="banner" id="exampleBanner" hidden>
     <span>You're looking at example data. Edit it, or start fresh with your own goal.</span>
@@ -136,9 +154,9 @@ th.today{color:var(--accent)}
   <section class="panel">
     <h2>Back up or move your data</h2>
     <p class="lede" style="margin:0">Your log lives only in this browser. Copy a backup now and then, and paste it here to restore it on another device.</p>
-    <div class="row"><button id="copyBackup">Copy backup</button><span id="copyMsg" class="label"></span></div>
+    <div class="row"><button id="copyBackup">Copy backup</button><span id="copyMsg" class="label" role="status" aria-live="polite"></span></div>
     <textarea id="backupBox" placeholder="Paste a backup here to restore"></textarea>
-    <div class="row"><button id="restore">Restore from pasted backup</button><span id="restoreMsg" class="label"></span></div>
+    <div class="row"><button id="restore">Restore from pasted backup</button><span id="restoreMsg" class="label" role="status" aria-live="polite"></span></div>
   </section>
 </div>
 
@@ -165,7 +183,8 @@ function example(){
 function blank(){return {example:false,goal:{sentence:'',s:'',m:'',a:'',r:'',start:iso(monday(today)),end:''},habits:[],done:{},prios:{},reviews:{}}}
 
 let state;
-try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):example()}catch(e){state=example()}
+let firstVisit=true;try{const raw=localStorage.getItem(KEY);firstVisit=!raw;state=raw?JSON.parse(raw):example()}catch(e){state=example()}
+if(firstVisit)document.getElementById('guide').open=true;
 let week=monday(today);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 const $=id=>document.getElementById(id);
