@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A free, private weekly tracker for your SMART goal, daily habits, top-3 priorities and Sunday review.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Leader Week Log</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one column of working panels — goal, habits grid, priorities, review — with a week switcher pinned on top */
+:root{
+  --bg:#EEF2F4; --surface:#FFFFFF; --ink:#16232B; --muted:#5B6B74; --line:#D5DEE3;
+  --accent:#0E6E62; --accent-soft:#D6EDE9; --warn:#B4580E; --done:#0E6E62;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F171C;--surface:#17232A;--ink:#E4ECEF;--muted:#93A4AD;--line:#2A3A43;
+  --accent:#4FC3AE;--accent-soft:#16352F;--warn:#F0A35E;--done:#4FC3AE;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F171C;--surface:#17232A;--ink:#E4ECEF;--muted:#93A4AD;--line:#2A3A43;
+  --accent:#4FC3AE;--accent-soft:#16352F;--warn:#F0A35E;--done:#4FC3AE;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2{font-family:var(--f-display);margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,6vw,40px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:20px;font-weight:600}
+.lede{color:var(--muted);margin:4px 0 0;max-width:60ch}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+input[type=text],input[type=date],input[type=number],textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%;box-sizing:border-box}
+textarea{min-height:70px;resize:vertical}
+button{font:600 14px var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ghost{border:none;background:none;color:var(--muted);padding:4px 6px}
+.banner{background:var(--accent-soft);border-radius:8px;padding:10px 14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.weekbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.smart{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.smart label{display:flex;flex-direction:column;gap:4px}
+.letter{font-family:var(--f-display);font-weight:800;color:var(--accent);font-size:18px}
+.track{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.fill{height:100%;background:var(--accent)}
+.gridwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+th{font-weight:600;font-size:12px;color:var(--muted)}
+th.today{color:var(--accent)}
+.cell{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--line);background:none;padding:0;font-size:16px;color:var(--surface)}
+.cell.on{background:var(--done);border-color:var(--done)}
+.hname{font-weight:600}
+.pill{display:inline-block;font:500 12px var(--f-mono);padding:2px 8px;border-radius:999px;background:var(--line);color:var(--ink);white-space:nowrap}
+.pill.ok{background:var(--accent-soft);color:var(--accent)}
+.pill.warn{color:var(--warn)}
+.prio{display:flex;gap:10px;align-items:center}
+.prio input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat .big{font:800 28px var(--f-display)}
+.hidden-box{display:flex;flex-direction:column;gap:8px}
+@media (prefers-reduced-motion:no-preference){.fill{transition:width .3s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="label">Aspire Leaders · personal tracker</div>
+    <h1>Leader Week Log</h1>
+    <p class="lede">Write one SMART goal, track the daily habits that move it, choose three priorities each week and review on Sunday. Everything stays private in your own browser.</p>
+  </header>
+
+  <div class="banner" id="exampleBanner" hidden>
+    <span>You're looking at example data. Edit it, or start fresh with your own goal.</span>
+    <button id="clearExample">Start fresh</button>
+  </div>
+
+  <div class="weekbar row spread">
+    <div class="row">
+      <button id="prevWeek" aria-label="Previous week">←</button>
+      <strong id="weekLabel" class="mono"></strong>
+      <button id="nextWeek" aria-label="Next week">→</button>
+    </div>
+    <button id="thisWeek" class="ghost">This week</button>
+  </div>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="panel">
+    <div class="row spread"><h2>My SMART goal</h2><span id="deadlinePill" class="pill"></span></div>
+    <label style="display:flex;flex-direction:column;gap:4px"><span class="label">Goal in one sentence</span>
+      <textarea id="g_sentence" placeholder="Over the next 90 days, I will improve my … by … and measure it through …"></textarea></label>
+    <div class="smart">
+      <label><span><span class="letter">S</span> <span class="label">Specific</span></span><input id="g_s" type="text" placeholder="What exactly, who, where"></label>
+      <label><span><span class="letter">M</span> <span class="label">Measurable</span></span><input id="g_m" type="text" placeholder="How much? How will I know?"></label>
+      <label><span><span class="letter">A</span> <span class="label">Attainable</span></span><input id="g_a" type="text" placeholder="Skills, tools, time I have"></label>
+      <label><span><span class="letter">R</span> <span class="label">Relevant</span></span><input id="g_r" type="text" placeholder="Why it matters now"></label>
+      <label><span><span class="letter">T</span> <span class="label">Start date</span></span><input id="g_start" type="date"></label>
+      <label><span><span class="letter">T</span> <span class="label">Deadline</span></span><input id="g_end" type="date"></label>
+    </div>
+    <div><div class="row spread"><span class="label">Time elapsed</span><span id="timePct" class="mono"></span></div><div class="track"><div class="fill" id="timeFill"></div></div></div>
+  </section>
+
+  <section class="panel">
+    <div class="row spread"><h2>Daily habits</h2><span class="label">Tap a day to mark it done</span></div>
+    <div class="gridwrap"><table id="habitTable"></table></div>
+    <form id="addHabit" class="row">
+      <input id="newHabit" type="text" placeholder="New habit, e.g. 30 min German" style="flex:1 1 220px">
+      <input id="newTarget" type="number" min="1" max="7" value="5" style="width:80px" aria-label="Days per week">
+      <span class="label">days / week</span>
+      <button class="primary">Add habit</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="row spread"><h2>Top 3 priorities this week</h2><span id="prioPill" class="pill"></span></div>
+    <div id="prios" class="hidden-box"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Sunday review</h2>
+    <label style="display:flex;flex-direction:column;gap:4px"><span class="label">What went well</span><textarea id="r_well"></textarea></label>
+    <label style="display:flex;flex-direction:column;gap:4px"><span class="label">What I postponed and why</span><textarea id="r_post"></textarea></label>
+    <label style="display:flex;flex-direction:column;gap:4px"><span class="label">One change for next week</span><textarea id="r_next"></textarea></label>
+  </section>
+
+  <section class="panel">
+    <h2>Back up or move your data</h2>
+    <p class="lede" style="margin:0">Your log lives only in this browser. Copy a backup now and then, and paste it here to restore it on another device.</p>
+    <div class="row"><button id="copyBackup">Copy backup</button><span id="copyMsg" class="label"></span></div>
+    <textarea id="backupBox" placeholder="Paste a backup here to restore"></textarea>
+    <div class="row"><button id="restore">Restore from pasted backup</button><span id="restoreMsg" class="label"></span></div>
+  </section>
+</div>
+
+<script>
+(function(){
+const KEY='leaderWeekLog.v1';
+const DAY=86400000;
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const monday=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);return x};
+const today=new Date();const todayIso=iso(today);
+
+function example(){
+  const start=monday(today);const s=iso(start);const end=new Date(start.getTime()+90*DAY);
+  const done={};const h=['h1','h2','h3'];
+  for(let i=1;i<=3;i++){const d=new Date(today.getTime()-i*DAY);h.forEach((id,k)=>{if((i+k)%3!==0)done[id+'|'+iso(d)]=true})}
+  return {example:true,
+    goal:{sentence:'Over the next 90 days, I will improve my planning by holding a weekly planning session every Sunday, keeping one task list and choosing a daily top priority, and I will measure progress through completed weekly plans and at least 80% of my weekly priorities done.',
+      s:'Plan my week and my day before I start work',m:'11 of 13 weekly plans done, 80% of top-3 priorities completed',a:'Calendar and one task app, 30 minutes on Sundays',r:'I lead client work, applications and study at the same time',start:s,end:iso(end)},
+    habits:[{id:'h1',name:'Pick today\'s top priority',target:5},{id:'h2',name:'30 minutes of focused study',target:5},{id:'h3',name:'Read or listen to something on leadership',target:3}],
+    done,prios:{[s]:[{t:'Submit Week 1 Aspire assignments',c:true},{t:'Finish one big work deliverable',c:false},{t:'Plan next week on Sunday evening',c:false}]},reviews:{}};
+}
+function blank(){return {example:false,goal:{sentence:'',s:'',m:'',a:'',r:'',start:iso(monday(today)),end:''},habits:[],done:{},prios:{},reviews:{}}}
+
+let state;
+try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):example()}catch(e){state=example()}
+let week=monday(today);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+const $=id=>document.getElementById(id);
+
+function weekDays(){return [...Array(7)].map((_,i)=>new Date(week.getTime()+i*DAY+3600000)).map(d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());return x})}
+function streak(h){let n=0;let d=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  if(!state.done[h.id+'|'+iso(d)])d=new Date(d.getTime()-DAY+3600000);
+  while(state.done[h.id+'|'+iso(new Date(d.getFullYear(),d.getMonth(),d.getDate()))]){n++;d=new Date(d.getTime()-DAY+3600000)}return n}
+
+function renderGoal(){const g=state.goal;
+  ['sentence','s','m','a','r'].forEach(k=>{$('g_'+k).value=g[k]||''});$('g_start').value=g.start||'';$('g_end').value=g.end||'';
+  const pill=$('deadlinePill');let pct=0;
+  if(g.end){const left=Math.ceil((parse(g.end)-parse(todayIso))/DAY);pill.textContent=left>=0?left+' days left':'Deadline passed';pill.className='pill '+(left<0?'warn':'ok');
+    if(g.start){const tot=(parse(g.end)-parse(g.start))/DAY;pct=tot>0?Math.min(100,Math.max(0,Math.round((parse(todayIso)-parse(g.start))/DAY/tot*100))):0}}
+  else{pill.textContent='Set a deadline';pill.className='pill warn'}
+  $('timeFill').style.width=pct+'%';$('timePct').textContent=pct+'%';}
+
+function renderWeek(){const days=weekDays();const wk=iso(week);
+  const e=new Date(week.getTime()+6*DAY+3600000);
+  $('weekLabel').textContent=week.toLocaleDateString(undefined,{day:'numeric',month:'short'})+' – '+e.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+  let html='<thead><tr><th>Habit</th>'+days.map(d=>'<th class="'+(iso(d)===todayIso?'today':'')+'">'+d.toLocaleDateString(undefined,{weekday:'short'})+'<br><span class="mono">'+d.getDate()+'</span></th>').join('')+'<th>Week</th><th>Streak</th><th></th></tr></thead><tbody>';
+  if(!state.habits.length)html+='<tr><td colspan="11" style="color:var(--muted);padding:14px 0">No habits yet. Add the first one below.</td></tr>';
+  state.habits.forEach(h=>{let c=0;html+='<tr><td class="hname">'+esc(h.name)+'</td>'+days.map(d=>{const k=h.id+'|'+iso(d);const on=!!state.done[k];if(on)c++;return '<td><button class="cell'+(on?' on':'')+'" data-k="'+k+'" aria-pressed="'+on+'" aria-label="'+esc(h.name)+' on '+d.toDateString()+'">'+(on?'✓':'')+'</button></td>'}).join('')+
+    '<td><span class="pill '+(c>=h.target?'ok':'')+'">'+c+'/'+h.target+'</span></td><td class="mono">'+streak(h)+'d</td><td><button class="ghost" data-del="'+h.id+'" aria-label="Delete '+esc(h.name)+'">✕</button></td></tr>'});
+  $('habitTable').innerHTML=html+'</tbody>';
+  const p=state.prios[wk]||(state.prios[wk]=[{t:'',c:false},{t:'',c:false},{t:'',c:false}]);
+  $('prios').innerHTML=p.map((x,i)=>'<div class="prio"><input type="checkbox" id="pc'+i+'" '+(x.c?'checked':'')+' aria-label="Priority '+(i+1)+' done"><input type="text" id="pt'+i+'" value="'+esc(x.t)+'" placeholder="Priority '+(i+1)+'"></div>').join('');
+  const filled=p.filter(x=>x.t.trim()),dn=filled.filter(x=>x.c).length;$('prioPill').textContent=dn+' of '+filled.length+' done';$('prioPill').className='pill '+(filled.length&&dn===filled.length?'ok':'');
+  const r=state.reviews[wk]||{};$('r_well').value=r.well||'';$('r_post').value=r.post||'';$('r_next').value=r.next||'';
+  renderStats();}
+
+function renderStats(){
+  const wks=Object.keys(state.prios);let tot=0,dn=0;wks.forEach(w=>state.prios[w].forEach(x=>{if(x.t.trim()){tot++;if(x.c)dn++}}));
+  const reviewed=Object.values(state.reviews).filter(r=>(r.well||r.post||r.next||'').trim()).length;
+  const days=weekDays();let need=0,got=0;state.habits.forEach(h=>{need+=h.target;got+=Math.min(h.target,days.filter(d=>state.done[h.id+'|'+iso(d)]).length)});
+  const best=state.habits.reduce((m,h)=>Math.max(m,streak(h)),0);
+  $('stats').innerHTML=[['Habits this week',need?Math.round(got/need*100)+'%':'–'],['Priorities completed',tot?Math.round(dn/tot*100)+'%':'–'],['Weeks reviewed',String(reviewed)],['Best streak',best+(best===1?' day':' days')]]
+    .map(([l,v])=>'<div class="panel stat" style="gap:2px"><span class="label">'+l+'</span><span class="big mono">'+v+'</span></div>').join('');}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function render(){$('exampleBanner').hidden=!state.example;renderGoal();renderWeek()}
+function touch(){if(state.example){state.example=false;$('exampleBanner').hidden=true}save()}
+
+['sentence','s','m','a','r'].forEach(k=>$('g_'+k).addEventListener('input',e=>{state.goal[k]=e.target.value;touch()}));
+['start','end'].forEach(k=>$('g_'+k).addEventListener('change',e=>{state.goal[k]=e.target.value;touch();renderGoal()}));
+$('habitTable').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.k){const k=b.dataset.k;if(state.done[k])delete state.done[k];else state.done[k]=true;touch();renderWeek()}
+  if(b.dataset.del){if(b.dataset.armed){state.habits=state.habits.filter(h=>h.id!==b.dataset.del);touch();renderWeek()}else{b.dataset.armed='1';b.textContent='Delete?';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent='✕'}},3000)}}});
+$('addHabit').addEventListener('submit',e=>{e.preventDefault();const n=$('newHabit').value.trim();if(!n)return;
+  state.habits.push({id:'h'+Date.now(),name:n,target:Math.min(7,Math.max(1,+$('newTarget').value||5))});$('newHabit').value='';touch();renderWeek()});
+$('prios').addEventListener('input',e=>{const p=state.prios[iso(week)];const i=+e.target.id.slice(2);
+  if(e.target.id.startsWith('pt'))p[i].t=e.target.value;else p[i].c=e.target.checked;touch();
+  const filled=p.filter(x=>x.t.trim()),dn=filled.filter(x=>x.c).length;$('prioPill').textContent=dn+' of '+filled.length+' done';$('prioPill').className='pill '+(filled.length&&dn===filled.length?'ok':'');renderStats()});
+[['r_well','well'],['r_post','post'],['r_next','next']].forEach(([id,k])=>$(id).addEventListener('input',e=>{const w=iso(week);(state.reviews[w]=state.reviews[w]||{})[k]=e.target.value;touch();renderStats()}));
+$('prevWeek').onclick=()=>{week=new Date(week.getTime()-7*DAY+3600000);week=monday(week);renderWeek()};
+$('nextWeek').onclick=()=>{week=monday(new Date(week.getTime()+7*DAY+3600000));renderWeek()};
+$('thisWeek').onclick=()=>{week=monday(today);renderWeek()};
+$('clearExample').onclick=()=>{state=blank();save();render()};
+$('copyBackup').onclick=()=>{const txt=JSON.stringify(state);$('backupBox').value=txt;
+  try{navigator.clipboard.writeText(txt).then(()=>{$('copyMsg').textContent='Copied to clipboard'},()=>{$('backupBox').select();$('copyMsg').textContent='Selected below, press Ctrl+C or Cmd+C'})}catch(e){$('backupBox').select();$('copyMsg').textContent='Selected below, press Ctrl+C or Cmd+C'}};
+$('restore').onclick=()=>{try{const s=JSON.parse($('backupBox').value);if(!s.goal||!Array.isArray(s.habits))throw 0;state=s;state.example=false;save();render();$('restoreMsg').textContent='Restored'}catch(e){$('restoreMsg').textContent='That text is not a valid backup. Copy it again from the Copy backup button.'}};
+render();
+})();
+</script>
+
+</body>
+</html>
