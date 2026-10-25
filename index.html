@@ -651,7 +651,7 @@ $('pdfBtn').onclick=()=>{
     if(!any)para('No review notes for this week.',10,mut)}
 
   // trend
-  if(state.sections.insights){head('Last 8 weeks');ensure(110);
+  if(state.sections.insights){ensure(150);head('Last 8 weeks');
     const weeks=[];for(let i=7;i>=0;i--)weeks.push(addDays(week,-7*i));
     const ch=70,cw=(W-2*M)/8,top=y;doc.setDrawColor(...line);doc.line(M,top+ch,W-M,top+ch);
     weeks.forEach((w,i)=>{const x=M+i*cw+cw/2,a=habitPct(w),b=prioPct(w);
