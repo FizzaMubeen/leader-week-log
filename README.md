@@ -13,13 +13,14 @@ No sign-up, no app to install, and it works on phones and computers.
 | Feature | What it does |
 |---|---|
 | Week score | A live score at the top showing how many habit days you've completed against your targets, plus priorities done, best streak, goal deadline and your week rating. |
-| SMART goals | Add one or more goals. Write each in one sentence, fill in Specific, Measurable, Attainable and Relevant, and set a start date and deadline. |
+| SMART goals | Add one or more goals. Write each in one sentence, fill in Specific, Measurable, Attainable and Relevant, and set a start date and deadline. Press **Save goal** to turn it into a summary card, and **Edit** to change it later. |
 | Milestones | Break each goal into checkpoints and tick them off. Progress bars show milestones completed and time used. |
 | Daily habits | Add habits, give each a target number of days per week, and tap each day you complete it. Rename habits or change targets at any time. |
 | Top priorities | Add as many priorities as you need for each week and mark them done. |
 | Weekly review | Rate your week from 1 (tough) to 5 (great) and answer review questions. You can write your own questions in Settings. |
 | Insights | An 8-week chart of habit and priority completion, and a 28-day history strip for each habit. |
-| Weekly PDF report | One click downloads a formatted report for the week you're viewing: summary, goals, milestones, habit grid, priorities, review notes and the 8-week trend. |
+| Custom dates | Switch from **Week** to **Custom dates** and choose any start and end date (up to 92 days), or a quick pick: last 7, 14 or 30 days, this month, last month, or your goal's dates. The score, habit grid, priorities, reviews and insights all follow your dates. |
+| PDF report | One click downloads a formatted report for the week or custom dates you're viewing: summary, goals, milestones, habits, priorities, review notes and a week-by-week trend. |
 | Save and backup | Changes save automatically, and a **Save** button saves on demand. The status at the top shows when your work was last saved. Download a backup file and open it on any device to restore your log. |
 | Customise | Add your name for the report, choose an accent colour, show or hide sections, and edit review questions. |
 
@@ -28,14 +29,15 @@ No sign-up, no app to install, and it works on phones and computers.
 1. **Open the link above.** The tracker starts with example data so you can see how it works.
 2. **Press _Start my own log_** to clear the examples.
 3. **Open _Settings_** and add your name. It appears on your weekly report.
-4. **Write your SMART goal.** Use the Aspire format: _"Over the next [timeframe], I will improve my [leadership behaviour] by [specific actions], and I will measure my progress through [indicators]."_ Then add 3–5 milestones.
+4. **Write your SMART goal.** Use the Aspire format: _"Over the next [timeframe], I will improve my [leadership behaviour] by [specific actions], and I will measure my progress through [indicators]."_ Add 3–5 milestones, then press **Save goal**.
 5. **Add 2–4 habits** that move the goal forward, for example "Plan tomorrow's top task" with a target of 5 days a week.
 6. **Tap a day's box** each time you complete a habit.
 7. **Every Monday,** write your priorities for the week.
-8. **Every Sunday,** rate your week, answer the review questions and press **Weekly report (PDF)**.
-9. **Once a week,** go to **Settings → Download backup** and keep the file somewhere safe.
+8. **Every Sunday,** rate your week, answer the review questions and press **PDF report**.
+9. **To review a longer stretch,** switch the header to **Custom dates**, pick your dates and download a progress report.
+10. **Once a week,** go to **Settings → Download backup** and keep the file somewhere safe.
 
-Use the arrows in the header to move between weeks and look back at your progress.
+Use the arrows in the header to move between weeks, or **Custom dates** to look at any period.
 
 ### Moving to another device
 
