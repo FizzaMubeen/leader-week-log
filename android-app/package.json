@@ -1,0 +1,21 @@
+{
+  "name": "leader-week-log-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android app build for Leader Week Log (Capacitor).",
+  "scripts": {
+    "prepare-web": "node prepare-web.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/share": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0",
+    "jspdf": "2.5.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.0"
+  }
+}

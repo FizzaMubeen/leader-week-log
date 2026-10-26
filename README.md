@@ -6,7 +6,7 @@ It was built for participants in the Aspire Leaders Program, but anyone can use 
 
 **Open the tracker:** https://fizzamubeen.github.io/leader-week-log/
 
-No sign-up, no app to install, and it works on phones and computers.
+No sign-up, and it works on phones and computers. On Android you can also install it as an app (see below).
 
 ## Features
 
@@ -45,10 +45,27 @@ Use the arrows in the header to move between weeks, or **Custom dates** to look 
 2. Send the backup file to yourself, for example by email.
 3. On the new device, open the tracker, go to **Settings → Open backup file** and choose the file.
 
-### Add it to your phone's home screen
+## Get it on Android
 
-- **iPhone (Safari):** Share → Add to Home Screen.
-- **Android (Chrome):** menu (⋮) → Add to Home screen.
+There are two ways. Both keep your data on your phone.
+
+**Option 1: Install from Chrome (quickest, updates itself)**
+1. Open https://fizzamubeen.github.io/leader-week-log/ in Chrome.
+2. Tap **Install app** in the top bar, or Chrome's menu (⋮) → **Install app** / **Add to Home screen**.
+3. Leader Week Log now opens from your home screen like any app, and works offline.
+
+**Option 2: Download the Android app (APK)**
+1. On your phone, open the [latest release](https://github.com/FizzaMubeen/leader-week-log/releases/latest) and tap **LeaderWeekLog.apk**.
+2. Open the downloaded file. If Android asks, allow your browser or Files app to **install unknown apps**.
+3. Tap **Install**, then **Open**.
+
+In the app, **PDF report** and **Download backup** open your phone's share sheet, so you can save the file to Files or Google Drive, or send it by email or WhatsApp.
+
+The app is not on Google Play yet. Android may show a warning because it comes from outside the Play Store; this is normal for apps installed directly.
+
+## iPhone
+
+Open the tracker in Safari, tap **Share → Add to Home Screen**.
 
 ## Privacy
 
@@ -66,10 +83,16 @@ Clearing your browser data, or using a private window, will erase your log, so d
 
 ## Run your own copy
 
-The whole app is a single file, `index.html`. It loads fonts from Google Fonts and the PDF library (jsPDF 2.5.1) from cdnjs.
+The whole app is a single file, `index.html`, plus `manifest.webmanifest`, `sw.js` (offline support) and the `icons` folder. It loads fonts from Google Fonts and the PDF library (jsPDF 2.5.1) from cdnjs.
 
 - **Use it locally:** download `index.html` and open it in any browser.
 - **Host your own copy:** fork this repository, then go to **Settings → Pages**, choose **Deploy from a branch**, select `main` and `/ (root)`, and save. Your copy will be live at `https://<your-username>.github.io/leader-week-log/` within a minute or two.
+
+### How the Android app is built
+
+The `android-app` folder wraps the same `index.html` with [Capacitor](https://capacitorjs.com) 6. The PDF library is bundled so the app works offline, and the Filesystem and Share plugins handle saving files. The workflow in `.github/workflows/android.yml` builds the APK on every change and publishes it as a GitHub release.
+
+To publish signed releases from your fork, add two repository secrets: `KEYSTORE_BASE64` (your keystore file, base64-encoded, with key alias `leaderweeklog`) and `KEYSTORE_PASSWORD`. Without them, the workflow publishes a test build.
 
 Backups from the first version of the tracker can be opened in this version. They are converted automatically.
 

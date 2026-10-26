@@ -1,0 +1,12 @@
+{
+  "appId": "io.github.fizzamubeen.leaderweeklog",
+  "appName": "Leader Week Log",
+  "webDir": "www",
+  "backgroundColor": "#13212B",
+  "android": {
+    "backgroundColor": "#13212B"
+  },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 800, "backgroundColor": "#13212B" }
+  }
+}

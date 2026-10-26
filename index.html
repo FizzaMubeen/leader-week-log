@@ -6,10 +6,16 @@
 <title>Leader Week Log</title>
 <meta name="description" content="A free, private tracker for SMART goals, daily habits, weekly priorities and reflection, with downloadable PDF reports for any week or date range.">
 <meta name="theme-color" content="#13212B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Week Log">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!--native-runtime--><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* Layout: sticky toolbar, dark hero with the period's score and view switch, then stacked working panels (goals, habits, priorities, review, insights, settings) */
 :root{
@@ -188,6 +194,7 @@ footer{color:var(--muted);font-size:14px;padding-block:0 40px}
   <div class="inner">
     <div class="brand"><span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg></span>Leader Week Log</div>
     <span class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="statusText">Saved in this browser</span></span>
+    <button id="installBtn" type="button" hidden>Install app</button>
     <button class="primary" id="saveBtn" type="button">Save</button>
     <button id="pdfBtn" type="button">PDF report</button>
     <button id="settingsBtn" type="button">Settings</button>
@@ -694,7 +701,19 @@ $('resetBtn').onclick=e=>arm(e.currentTarget,'Click again to erase everything',(
 
 // backup
 function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
-$('exportBtn').onclick=()=>{save();download('leader-week-log-backup-'+todayIso+'.json',new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));toast('Backup downloaded')};
+// In the Android app, files are saved with the phone's share sheet (Files, Drive, email…).
+const isNative=()=>{const C=window.Capacitor;return !!(C&&(C.isNativePlatform?C.isNativePlatform():(C.getPlatform&&C.getPlatform()!=='web')))};
+function plugin(n){const C=window.Capacitor;if(!C)return null;if(C.Plugins&&C.Plugins[n])return C.Plugins[n];if(C.registerPlugin)return C.registerPlugin(n);if(C.nativePromise)return new Proxy({},{get:(_,m)=>o=>C.nativePromise(n,m,o)});return null}
+const toB64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(blob)});
+async function saveFile(name,blob,okMsg){
+  if(!isNative()){download(name,blob);toast(okMsg);return}
+  try{
+    const FS=plugin('Filesystem'),Share=plugin('Share');
+    const res=await FS.writeFile({path:name,data:await toB64(blob),directory:'CACHE'});
+    try{await Share.share({title:name,url:res.uri,dialogTitle:'Save or send '+name})}catch(e){/* closed without choosing */}
+  }catch(err){toast('Could not create the file. Please try again.')}
+}
+$('exportBtn').onclick=()=>{save();saveFile('leader-week-log-backup-'+todayIso+'.json',new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),'Backup downloaded')};
 $('importBtn').onclick=()=>$('importFile').click();
 $('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>restore(rd.result);rd.readAsText(f);e.target.value=''};
 $('pasteRestore').onclick=()=>restore($('pasteBox').value);
@@ -809,8 +828,17 @@ $('pdfBtn').onclick=()=>{
   const pages=doc.getNumberOfPages();
   for(let i=1;i<=pages;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...mut);
     doc.text('Generated '+dLong(today)+' with Leader Week Log · fizzamubeen.github.io/leader-week-log',M,H-26);doc.text(i+' / '+pages,W-M,H-26,{align:'right'})}
-  doc.save(range?'leader-progress-report-'+iso(p.start)+'-to-'+iso(p.end)+'.pdf':'leader-week-report-'+iso(week)+'.pdf');toast(range?'Progress report downloaded':'Weekly report downloaded');
+  const fname=range?'leader-progress-report-'+iso(p.start)+'-to-'+iso(p.end)+'.pdf':'leader-week-report-'+iso(week)+'.pdf',okMsg=range?'Progress report downloaded':'Weekly report downloaded';
+  if(isNative())saveFile(fname,doc.output('blob'),okMsg);else{doc.save(fname);toast(okMsg)}
 };
+
+/* ---------- app install, offline and Android ---------- */
+let installEvt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;$('installBtn').hidden=false});
+$('installBtn').onclick=async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch(e){}installEvt=null;$('installBtn').hidden=true};
+window.addEventListener('appinstalled',()=>{$('installBtn').hidden=true;toast('Leader Week Log is installed on your device')});
+if(!isNative()&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+if(isNative()){try{const SB=plugin('StatusBar');SB.setBackgroundColor({color:'#13212B'});SB.setStyle({style:'DARK'})}catch(e){}}
 
 /* ---------- start ---------- */
 if(firstVisit)$('guide').open=true;
